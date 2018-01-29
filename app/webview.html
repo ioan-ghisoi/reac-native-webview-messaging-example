@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+    <meta 
+    name="viewport" 
+    content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0'
+    >
+<style>
+  #pay-now-button {
+    margin: 20px auto;
+    display: block;
+    width: 100px;
+    height: 35px;
+  }
+  #payment-form {
+    margin-top: 40px;
+  }
+</style>
+
+<body>
+  <!-- add frames script -->
+  <script src="https://cdn.checkout.com/js/frames.js"></script>
+  <form id="payment-form" method="POST" action="https://merchant.com/charge-card">
+    <div class="frames-container">
+      <!-- form will be added here -->
+    </div>
+    <!-- add submit button -->
+    <button id="pay-now-button" type="submit" disabled>Pay now</button>
+  </form>
+
+  <script>
+    var paymentForm = document.getElementById('payment-form');
+    var payNowButton = document.getElementById('pay-now-button');
+
+    Frames.init({
+      publicKey: 'pk_test_6ff46046-30af-41d9-bf58-929022d2cd14',
+      containerSelector: '.frames-container',
+      cardValidationChanged: function () {
+        payNowButton.disabled = !Frames.isCardValid();
+      },
+      cardSubmitted: function () {
+        payNowButton.disabled = true;
+      }
+    });
+    paymentForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+      Frames.submitCard()
+        .then(function (data) {
+          Frames.addCardToken(paymentForm, data.cardToken);
+          window.postMessage(data.cardToken);
+        })
+        .catch(function (err) {
+          document.getElementById('text_input').value = err;
+        });
+    });
+  </script>
+
+
+</body>
+
+</html>
